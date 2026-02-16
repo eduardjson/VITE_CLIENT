@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 
 import { useState } from "react";
 import { ActionDropdown } from "./ActionDropdown";
+import { Profile } from "./Profile";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ const Header = () => {
             ]}
           />
         </div>
+        <Profile />
       </AppBar>
       <Box
         sx={{
