@@ -1,10 +1,22 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { Provider } from "react-redux"
-import { App } from "./App"
-import { store } from "./app/store"
+import { store } from "./store/store"
 import "./index.css"
 
+import { createRouter, RouterProvider } from "@tanstack/react-router"
+import { routeTree } from "./routeTree.gen"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+
+const router = createRouter({ routeTree })
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router
+  }
+}
+
+const isProduction = process.env.NODE_ENV === "production"
 const container = document.getElementById("root")
 
 if (container) {
@@ -13,7 +25,10 @@ if (container) {
   root.render(
     <StrictMode>
       <Provider store={store}>
-        <App />
+        <RouterProvider router={router} />
+        {!isProduction && (
+          <TanStackRouterDevtools router={router} position="bottom-left" />
+        )}
       </Provider>
     </StrictMode>,
   )
