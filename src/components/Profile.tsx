@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 import { useGetCurrentUserQuery, useLogoutMutation } from "../services";
 import { Login, ExitToApp } from "@mui/icons-material";
-import { ActionModal } from "./ActionModal";
 
 export const Profile = () => {
+  const [logout, { isLoading, error }] = useLogoutMutation();
   // Стейт для управления видимостью диалогового окна
   const [open, setOpen] = useState(false);
 
@@ -31,19 +31,15 @@ export const Profile = () => {
     setOpen(false);
   };
 
-  const [logout] = useLogoutMutation(); // получаем мутатор
-
   const handleLogout = async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) return;
+    const refreshToken = localStorage.getItem("refreshToken"); // Или берёте откуда-то ещё
     try {
-      await logout(refreshToken).unwrap(); // инициируем выход из системы
-      alert("Вы успешно вышли из системы!");
+      await logout(refreshToken).unwrap();
+      alert("Вы успешно вышли из системы.");
     } catch (err) {
       console.error("Ошибка выхода:", err);
     }
   };
-
   return (
     <>
       {/* Основной контейнер */}
