@@ -15,7 +15,15 @@ export const userApi = createApi({
         };
       },
     }),
+    getAllUsers: builder.query<RegisterFormData[], void>({
+      query() {
+        return {
+          url: "/user/all-users",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetCurrentUserQuery } = userApi;
+export const { useGetCurrentUserQuery, useGetAllUsersQuery } = userApi;

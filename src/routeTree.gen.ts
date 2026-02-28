@@ -16,10 +16,12 @@ import { Route as ReturnsIndexRouteImport } from './routes/returns/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PricesIndexRouteImport } from './routes/prices/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
+import { Route as MeIndexRouteImport } from './routes/me/index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees/index'
 import { Route as ContractorsIndexRouteImport } from './routes/contractors/index'
 import { Route as AnalyticsIndexRouteImport } from './routes/analytics/index'
 import { Route as ProductsProductIdRouteImport } from './routes/products/$productId'
+import { Route as EmployeesEmployeeIdRouteImport } from './routes/employees/$employeeId'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as ProductsAddIndexRouteImport } from './routes/products/add/index'
@@ -59,6 +61,11 @@ const MovementsIndexRoute = MovementsIndexRouteImport.update({
   path: '/movements/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeIndexRoute = MeIndexRouteImport.update({
+  id: '/me/',
+  path: '/me/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
   id: '/employees/',
   path: '/employees/',
@@ -77,6 +84,11 @@ const AnalyticsIndexRoute = AnalyticsIndexRouteImport.update({
 const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
   id: '/products/$productId',
   path: '/products/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmployeesEmployeeIdRoute = EmployeesEmployeeIdRouteImport.update({
+  id: '/employees/$employeeId',
+  path: '/employees/$employeeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -99,10 +111,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/employees/$employeeId': typeof EmployeesEmployeeIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/analytics': typeof AnalyticsIndexRoute
   '/contractors': typeof ContractorsIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
   '/prices': typeof PricesIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -115,10 +129,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/employees/$employeeId': typeof EmployeesEmployeeIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/analytics': typeof AnalyticsIndexRoute
   '/contractors': typeof ContractorsIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
   '/prices': typeof PricesIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -132,10 +148,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/employees/$employeeId': typeof EmployeesEmployeeIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/analytics/': typeof AnalyticsIndexRoute
   '/contractors/': typeof ContractorsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/me/': typeof MeIndexRoute
   '/movements/': typeof MovementsIndexRoute
   '/prices/': typeof PricesIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -150,10 +168,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/employees/$employeeId'
     | '/products/$productId'
     | '/analytics'
     | '/contractors'
     | '/employees'
+    | '/me'
     | '/movements'
     | '/prices'
     | '/products'
@@ -166,10 +186,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/employees/$employeeId'
     | '/products/$productId'
     | '/analytics'
     | '/contractors'
     | '/employees'
+    | '/me'
     | '/movements'
     | '/prices'
     | '/products'
@@ -182,10 +204,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/employees/$employeeId'
     | '/products/$productId'
     | '/analytics/'
     | '/contractors/'
     | '/employees/'
+    | '/me/'
     | '/movements/'
     | '/prices/'
     | '/products/'
@@ -199,10 +223,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  EmployeesEmployeeIdRoute: typeof EmployeesEmployeeIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
   AnalyticsIndexRoute: typeof AnalyticsIndexRoute
   ContractorsIndexRoute: typeof ContractorsIndexRoute
   EmployeesIndexRoute: typeof EmployeesIndexRoute
+  MeIndexRoute: typeof MeIndexRoute
   MovementsIndexRoute: typeof MovementsIndexRoute
   PricesIndexRoute: typeof PricesIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -263,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovementsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me/': {
+      id: '/me/'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof MeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/employees/': {
       id: '/employees/'
       path: '/employees'
@@ -289,6 +322,13 @@ declare module '@tanstack/react-router' {
       path: '/products/$productId'
       fullPath: '/products/$productId'
       preLoaderRoute: typeof ProductsProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employees/$employeeId': {
+      id: '/employees/$employeeId'
+      path: '/employees/$employeeId'
+      fullPath: '/employees/$employeeId'
+      preLoaderRoute: typeof EmployeesEmployeeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
@@ -319,10 +359,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  EmployeesEmployeeIdRoute: EmployeesEmployeeIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
   AnalyticsIndexRoute: AnalyticsIndexRoute,
   ContractorsIndexRoute: ContractorsIndexRoute,
   EmployeesIndexRoute: EmployeesIndexRoute,
+  MeIndexRoute: MeIndexRoute,
   MovementsIndexRoute: MovementsIndexRoute,
   PricesIndexRoute: PricesIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
