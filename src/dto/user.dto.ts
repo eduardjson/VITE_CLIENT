@@ -5,7 +5,7 @@ export interface UserDTO {
   email: string;
   phone: string;
   password: string;
-  role: ["ADMIN"];
+  role: "ADMIN" | "USER";
   avatar: string;
 }
 
