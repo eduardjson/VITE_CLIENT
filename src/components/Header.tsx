@@ -19,7 +19,8 @@ const Header = () => {
       5: "/prices",
       6: "/analytics",
       7: "/employees",
-      8: "/contractors",
+      8: "/free-chat",
+      9: "/contractors",
     };
     setTabIndex(i);
 
@@ -79,7 +80,8 @@ const Header = () => {
           <Tab label="Прайсы" tabIndex={5} />
           <Tab label="Аналитика" tabIndex={6} />
           <Tab label="Сотрудники" tabIndex={7} />
-          <Tab label="Объекты" tabIndex={8} />
+          <Tab label="Чат" tabIndex={8} />
+          <Tab label="Объекты" tabIndex={9} />
         </Tabs>
       </Box>
     </div>

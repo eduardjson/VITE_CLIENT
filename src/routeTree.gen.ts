@@ -17,6 +17,7 @@ import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PricesIndexRouteImport } from './routes/prices/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
 import { Route as MeIndexRouteImport } from './routes/me/index'
+import { Route as FreeChatIndexRouteImport } from './routes/free-chat/index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees/index'
 import { Route as ContractorsIndexRouteImport } from './routes/contractors/index'
 import { Route as AnalyticsIndexRouteImport } from './routes/analytics/index'
@@ -64,6 +65,11 @@ const MovementsIndexRoute = MovementsIndexRouteImport.update({
 const MeIndexRoute = MeIndexRouteImport.update({
   id: '/me/',
   path: '/me/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FreeChatIndexRoute = FreeChatIndexRouteImport.update({
+  id: '/free-chat/',
+  path: '/free-chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsIndexRoute
   '/contractors': typeof ContractorsIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/free-chat': typeof FreeChatIndexRoute
   '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
   '/prices': typeof PricesIndexRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsIndexRoute
   '/contractors': typeof ContractorsIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/free-chat': typeof FreeChatIndexRoute
   '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
   '/prices': typeof PricesIndexRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/analytics/': typeof AnalyticsIndexRoute
   '/contractors/': typeof ContractorsIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/free-chat/': typeof FreeChatIndexRoute
   '/me/': typeof MeIndexRoute
   '/movements/': typeof MovementsIndexRoute
   '/prices/': typeof PricesIndexRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/contractors'
     | '/employees'
+    | '/free-chat'
     | '/me'
     | '/movements'
     | '/prices'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/contractors'
     | '/employees'
+    | '/free-chat'
     | '/me'
     | '/movements'
     | '/prices'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/analytics/'
     | '/contractors/'
     | '/employees/'
+    | '/free-chat/'
     | '/me/'
     | '/movements/'
     | '/prices/'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   AnalyticsIndexRoute: typeof AnalyticsIndexRoute
   ContractorsIndexRoute: typeof ContractorsIndexRoute
   EmployeesIndexRoute: typeof EmployeesIndexRoute
+  FreeChatIndexRoute: typeof FreeChatIndexRoute
   MeIndexRoute: typeof MeIndexRoute
   MovementsIndexRoute: typeof MovementsIndexRoute
   PricesIndexRoute: typeof PricesIndexRoute
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/me'
       fullPath: '/me'
       preLoaderRoute: typeof MeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/free-chat/': {
+      id: '/free-chat/'
+      path: '/free-chat'
+      fullPath: '/free-chat'
+      preLoaderRoute: typeof FreeChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/employees/': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsIndexRoute: AnalyticsIndexRoute,
   ContractorsIndexRoute: ContractorsIndexRoute,
   EmployeesIndexRoute: EmployeesIndexRoute,
+  FreeChatIndexRoute: FreeChatIndexRoute,
   MeIndexRoute: MeIndexRoute,
   MovementsIndexRoute: MovementsIndexRoute,
   PricesIndexRoute: PricesIndexRoute,
