@@ -45,6 +45,33 @@ export const productsApi = createApi({
       }),
       invalidatesTags: () => ["Product"],
     }),
+    addImages: builder.mutation<
+      ImageUploadResponse,
+      { id: string; images: File[] }
+    >({
+      queryFn: async ({ id, images }) => {
+        // формируем FormData
+        const formData = new FormData();
+        images.forEach(f => formData.append("images", f));
+
+        const url = `/products/${id}/images`;
+
+        // используем fetch напрямую, чтобы отправить multipart/form-data
+        const res = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          return { error: { status: res.status, data: errorText } as any };
+        }
+
+        const data = (await res.json()) as ImageUploadResponse;
+        return { data };
+      },
+      transformResponse: (response: ImageUploadResponse) => response,
+    }),
   }),
 });
 
@@ -54,4 +81,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useAddImagesMutation,
 } = productsApi;

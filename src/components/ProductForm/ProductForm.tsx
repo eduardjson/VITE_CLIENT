@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import {
   TextField,
@@ -8,6 +8,7 @@ import {
   Box,
   CircularProgress,
   Typography,
+  Avatar,
 } from "@mui/material";
 
 import { AddAPhoto } from "@mui/icons-material";
@@ -15,6 +16,7 @@ import { AddAPhoto } from "@mui/icons-material";
 import {
   useCreateProductMutation,
   useUpdateProductMutation,
+  useAddImagesMutation,
 } from "../../services";
 import { ProductFormSchema, productSchema } from "./product.schema";
 import { readImageAsBase64 } from "./utils";
@@ -52,22 +54,46 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
 
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+  const [addImages, { isLoading: isUploadingImages }] = useAddImagesMutation();
 
-  const isLoading = isCreating || isUpdating;
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<
+    { id: string; url: string }[]
+  >([]);
+
+  const isLoading = isCreating || isUpdating || isUploadingImages;
   const isCreateMode = mode === "create";
   const submit = isCreateMode ? createProduct : updateProduct;
 
   const submitHandler = async (data: UpdateProductDTO | CreateProductDTO) => {
-    await submit({ data, id: product?.id })
-      .unwrap()
-      .then(() => {
-        reset();
-        onClose();
-      })
-      .catch(err => console.error("Ошибка при создании продукта:", err));
+    try {
+      const result = await submit({ data, id: product?.id } as any).unwrap();
+
+      // if create mode, result is new product id
+      const productId = product?.id ?? result?.id ?? (result as any);
+
+      // загрузка изображений, если выбраны файлы
+      if (selectedFiles.length > 0 && productId) {
+        const formData = new FormData();
+        selectedFiles.forEach(f => formData.append("images", f));
+        const uploadRes = await addImages({
+          id: productId,
+          images: selectedFiles,
+        } as any).unwrap();
+        // обновим локальные превью изображений если нужно
+        if (uploadRes?.images) {
+          setUploadedImages(uploadRes.images);
+        }
+      }
+
+      reset();
+      onClose();
+    } catch (err) {
+      console.error("Ошибка при сохранении продукта:", err);
+    }
   };
 
-  const handleFileSelect = async (
+  const handleFileSelect2 = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.item(0);
@@ -76,6 +102,29 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
     const result = await readImageAsBase64(file);
     setValue("imageUrl", result);
   };
+
+  // обработчик выбора файлов
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+
+    // сохраняем в состояние
+    setSelectedFiles(prev => [...prev, ...files].slice(0, 20)); // максимум 20
+    // показываем превью для первых файлов
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // превью существующих/предыдущих изображений
+  const previewImages = [...uploadedImages];
+  if (imageUrl) {
+    // если есть основное изображение, можно добавить как превью
+    previewImages.unshift({ id: "local-main", url: imageUrl });
+  }
 
   const formTitle = isCreateMode
     ? "Добавление продукта"
@@ -92,7 +141,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           label="Наименование"
           type="text"
           value={title}
-          onChange={event => setValue("title", event.target.value)}
+          onChange={e => setValue("title", e.target.value)}
           error={!!errors.title}
           helperText={errors.title?.message}
         />
@@ -101,7 +150,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           label="Описание"
           type="text"
           value={description}
-          onChange={event => setValue("description", event.target.value)}
+          onChange={e => setValue("description", e.target.value)}
           error={!!errors.description}
           helperText={errors.description?.message}
         />
@@ -110,7 +159,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           label="Цена"
           type="number"
           value={price}
-          onChange={event => setValue("price", Number(event.target.value))}
+          onChange={e => setValue("price", Number(e.target.value))}
           error={!!errors.price}
           helperText={errors.price?.message}
         />
@@ -130,7 +179,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           label="Категория"
           type="text"
           value={category}
-          onChange={event => setValue("category", event.target.value)}
+          onChange={e => setValue("category", e.target.value)}
           error={!!errors.category}
           helperText={errors.category?.message}
         />
@@ -139,7 +188,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           label="Производитель"
           type="text"
           value={manufacturer}
-          onChange={event => setValue("manufacturer", event.target.value)}
+          onChange={e => setValue("manufacturer", e.target.value)}
           error={!!errors.manufacturer}
           helperText={errors.manufacturer?.message}
         />
@@ -158,10 +207,77 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
           <input
             type="file"
             accept="image/*"
-            onChange={handleFileSelect}
+            onChange={handleFileSelect2}
             ref={fileInputRef}
           />
         </Box>
+        <Box className="flex flex-row gap-2 items-center">
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<AddAPhoto />}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Выберите изображения
+          </Button>
+          {selectedFiles.length > 0 && (
+            <span>{selectedFiles.length} файла(ов) выбрано</span>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileSelect}
+            ref={fileInputRef}
+            style={{ display: "none" }}
+          />
+        </Box>
+
+        {selectedFiles.length > 0 && (
+          <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
+            {selectedFiles.map((f, idx) => (
+              <Box
+                key={idx}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+              >
+                <Avatar
+                  variant="rounded"
+                  src={URL.createObjectURL(f)}
+                  sx={{ width: 72, height: 72 }}
+                />
+                <Button
+                  size="small"
+                  color="secondary"
+                  onClick={() => removeSelectedFile(idx)}
+                >
+                  Удалить
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        <Box display="flex" gap={2} flexWrap="wrap">
+          {previewImages.map(img => (
+            <Box
+              key={img.id}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+            >
+              <img
+                src={img.url}
+                alt="preview"
+                width={72}
+                height={72}
+                style={{ objectFit: "cover" }}
+              />
+            </Box>
+          ))}
+        </Box>
+
         <div className="flex flex-row justify-end gap-2">
           <Button onClick={onClose}>Выйти</Button>
           <Button
