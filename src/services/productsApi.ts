@@ -54,7 +54,7 @@ export const productsApi = createApi({
         const formData = new FormData();
         images.forEach(f => formData.append("images", f));
 
-        const url = `/products/${id}/images`;
+        const url = `http://localhost:5000/api/products/${id}/images`;
 
         // используем fetch напрямую, чтобы отправить multipart/form-data
         const res = await fetch(url, {

@@ -30,6 +30,7 @@ type ProductFormProps = {
 
 const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
 
   const {
     handleSubmit,
@@ -52,6 +53,8 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
     imageUrl,
   } = watch();
 
+  console.log(watch());
+
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   const [addImages, { isLoading: isUploadingImages }] = useAddImagesMutation();
@@ -66,6 +69,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
   const submit = isCreateMode ? createProduct : updateProduct;
 
   const submitHandler = async (data: UpdateProductDTO | CreateProductDTO) => {
+    console.log(data);
     try {
       const result = await submit({ data, id: product?.id } as any).unwrap();
 
@@ -93,13 +97,17 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
     }
   };
 
+  console.log(uploadedImages);
+
   const handleFileSelect2 = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    console.log(event);
     const file = event.target.files?.item(0);
     if (!file) return;
 
     const result = await readImageAsBase64(file);
+    console.log(result);
     setValue("imageUrl", result);
   };
 
@@ -197,7 +205,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
             variant="contained"
             color="success"
             startIcon={<AddAPhoto />}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => fileInputRef2.current?.click()}
           >
             Выберите изображение
           </Button>
@@ -208,7 +216,7 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
             type="file"
             accept="image/*"
             onChange={handleFileSelect2}
-            ref={fileInputRef}
+            ref={fileInputRef2}
           />
         </Box>
         <Box className="flex flex-row gap-2 items-center">
