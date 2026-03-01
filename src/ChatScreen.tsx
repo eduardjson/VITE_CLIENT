@@ -5,6 +5,8 @@ import TimeAgo from "react-timeago";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import { USER_INFO } from "./constants";
 import { useChat } from "./useChat";
+import { Input, TextField } from "@mui/material";
+import { useGetCurrentUserQuery } from "./services";
 
 // уведомление о подключении/отключении пользователя
 const notify = (message: string) =>
@@ -15,9 +17,13 @@ const notify = (message: string) =>
     transition: Slide,
   });
 
-export const ChatScreen = () => {
-  const { userId, userName } = USER_INFO;
-
+export const ChatScreen = ({
+  id,
+  username,
+}: {
+  id: string;
+  username: string;
+}) => {
   // получаем сообщения, лог и операции
   const { messages, log, chatActions } = useChat();
 
@@ -38,8 +44,8 @@ export const ChatScreen = () => {
     if (!trimmed) return;
 
     const message = {
-      userId,
-      userName,
+      userId: id,
+      userName: username,
       text,
     };
 
@@ -76,7 +82,7 @@ export const ChatScreen = () => {
           messages.length > 0 &&
           messages.map(message => {
             // определяем принадлежность сообщения пользователю
-            const isMsgBelongsToUser = message.userId === USER_INFO;
+            const isMsgBelongsToUser = message.userId === id;
 
             return (
               <div
@@ -85,7 +91,7 @@ export const ChatScreen = () => {
                 // 1) принадлежность пользователю;
                 // 2) состояние редактирования
                 className={[
-                  "my-2 p-2 rounded-md text-white w-1/2",
+                  "my-2 p-2 rounded-md text-white w-2/3",
                   isMsgBelongsToUser
                     ? "self-end bg-green-500"
                     : "self-start bg-blue-500",
@@ -133,9 +139,9 @@ export const ChatScreen = () => {
           })}
       </div>
       {/* отправка сообщения */}
-      <form onSubmit={sendMessage} className="flex items-stretch">
+      <form onSubmit={sendMessage} className="flex items-stretch w-2/3">
         <div className="flex-1 flex">
-          <input
+          <TextField
             type="text"
             id="message"
             name="message"
