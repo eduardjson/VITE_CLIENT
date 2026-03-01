@@ -9,6 +9,7 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set("Authorization", `${token}`);
     }
+    console.log(headers);
     return headers;
   },
 });
@@ -70,6 +71,6 @@ export const customFetchBaseQuery: BaseQueryFn<any, unknown, any> = async (
   if ((result as any).error?.status === 401) {
     console.error("Авторизация не пройдена");
   }
-
+  console.log(result);
   return result;
 };

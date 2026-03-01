@@ -11,12 +11,13 @@ import {
   Avatar,
 } from "@mui/material";
 
+const BASE_URL = "http://localhost:5000/api/";
+
 import { AddAPhoto } from "@mui/icons-material";
 
 import {
   useCreateProductMutation,
   useUpdateProductMutation,
-  useAddImagesMutation,
 } from "../../services";
 import { ProductFormSchema, productSchema } from "./product.schema";
 import { readImageAsBase64 } from "./utils";
@@ -57,36 +58,43 @@ const ProductForm = ({ product, onClose, mode }: ProductFormProps) => {
 
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
-  const [addImages, { isLoading: isUploadingImages }] = useAddImagesMutation();
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedImages, setUploadedImages] = useState<
     { id: string; url: string }[]
   >([]);
 
-  const isLoading = isCreating || isUpdating || isUploadingImages;
+  const isLoading = isCreating || isUpdating;
   const isCreateMode = mode === "create";
   const submit = isCreateMode ? createProduct : updateProduct;
 
   const submitHandler = async (data: UpdateProductDTO | CreateProductDTO) => {
     console.log(data);
     try {
-      const result = await submit({ data, id: product?.id } as any).unwrap();
+      const result = await submit({ data, id: product?.id }).unwrap();
 
       // if create mode, result is new product id
       const productId = product?.id ?? result?.id ?? (result as any);
 
       // загрузка изображений, если выбраны файлы
       if (selectedFiles.length > 0 && productId) {
+        const token = localStorage.getItem("accessToken");
         const formData = new FormData();
-        selectedFiles.forEach(f => formData.append("images", f));
-        const uploadRes = await addImages({
-          id: productId,
-          images: selectedFiles,
-        } as any).unwrap();
-        // обновим локальные превью изображений если нужно
-        if (uploadRes?.images) {
-          setUploadedImages(uploadRes.images);
+
+        const url = `${BASE_URL}products/${productId}/images`;
+        selectedFiles.forEach(f => formData.append("images", f)); // Кладем файлы в formData
+
+        const uploadRes = await fetch(url, {
+          method: "POST",
+          body: formData, // Сам объект FormData
+          headers: {
+            Authorization: `${token}`, // Токен авторизации оставляем
+            // "Content-Type": "multipart/form-data", <-- Удаляем этот заголовок
+          },
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error(`Upload failed with status code ${uploadRes.status}`);
         }
       }
 
