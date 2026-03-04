@@ -38,7 +38,7 @@ export const ActionDropdown = ({ label, actions }: IActionDropdown) => {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        <Add color="action" sx={{ color: "white" }} />
+        <Add color="action" sx={{ color: "black" }} />
       </Button>
       <Menu
         id="basic-menu"

@@ -1,60 +1,29 @@
 import { AppBar, Box, Tab, Tabs, useTheme } from "@mui/material";
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { ActionDropdown } from "./ActionDropdown";
 import { Profile } from "./Profile";
 
 const Header = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const router = useRouter();
-  const currentPath = router.state.location.pathname;
-
-  // Маппинг путей к индексам
-  const tabPaths: Record<string, number> = {
-    "/products": 0,
-    "/warehouses": 1,
-    "/shipments": 2,
-    "/movements": 3,
-    "/returns": 4,
-    "/prices": 5,
-    "/analytics": 6,
-    "/employees": 7,
-    "/free-chat": 8,
-    "/contractors": 9,
-  };
-
-  // Определяем активный таб на основе текущего пути
-  const getActiveTabIndex = (): number => {
-    // Проверяем точное совпадение
-    if (currentPath in tabPaths) {
-      return tabPaths[currentPath];
-    }
-
-    // Проверяем вложенные пути (например /products/add)
-    for (const [path, index] of Object.entries(tabPaths)) {
-      if (currentPath.startsWith(path + "/")) {
-        return index;
-      }
-    }
-
-    return 0; // По умолчанию первый таб
-  };
-
-  const [tabIndex, setTabIndex] = useState(getActiveTabIndex());
-
-  // Обновляем таб при изменении пути
-  useEffect(() => {
-    setTabIndex(getActiveTabIndex());
-  }, [currentPath]);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const handleSelect = (_: React.SyntheticEvent, newValue: number) => {
-    // Находим путь по индексу
-    const path = Object.keys(tabPaths).find(key => tabPaths[key] === newValue);
-    if (path) {
-      setTabIndex(newValue);
-      navigate({ to: path });
-    }
+    const tabPaths: Record<number, string> = {
+      0: "/products",
+      1: "/warehouses",
+      2: "/shipments",
+      3: "/movements",
+      4: "/returns",
+      5: "/prices",
+      6: "/analytics",
+      7: "/employees",
+      8: "/free-chat",
+      9: "/contractors",
+    };
+    setTabIndex(newValue);
+    navigate({ to: tabPaths[newValue] });
   };
 
   return (
@@ -67,17 +36,17 @@ const Header = () => {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "8px 20px",
-          height: "64px",
+          height: "56px", // Можно уменьшить и шапку
           bgcolor: "white",
           color: "text.primary",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex flex-row items-center gap-4">
           <Link
             to="/"
-            className="font-bold text-xl"
             style={{ color: theme.palette.primary.main }}
+            className="font-bold"
           >
             СПБ-СНАБЖЕНИЕ
           </Link>
@@ -95,43 +64,22 @@ const Header = () => {
         <Profile />
       </AppBar>
 
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "white",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-        }}
-      >
+      <Box sx={{ width: "100%", borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={tabIndex}
           onChange={handleSelect}
           variant="scrollable"
           scrollButtons="auto"
-          aria-label="Навигационные вкладки"
           sx={{
-            minHeight: "48px",
-            px: 2,
-            "& .MuiTabs-indicator": {
-              height: 3,
-              backgroundColor: theme.palette.primary.main,
-              borderRadius: "3px 3px 0 0",
-            },
+            minHeight: 36, // 👈 УМЕНЬШИЛ ВЫСОТУ
             "& .MuiTab-root": {
-              minHeight: "48px",
+              minHeight: 36, // 👈 И ЗДЕСЬ ТОЖЕ
               textTransform: "none",
-              fontSize: "0.9rem",
-              fontWeight: 500,
-              color: "text.secondary",
-              transition: "color 0.2s, background-color 0.2s",
-              "&:hover": {
-                color: theme.palette.primary.main,
-                backgroundColor: theme.palette.action.hover,
-              },
-              "&.Mui-selected": {
-                color: theme.palette.primary.main,
-                fontWeight: 600,
-              },
+              fontSize: "0.85rem",
+              py: 0.5,
+            },
+            "& .MuiTabs-indicator": {
+              height: 2, // 👈 ТОНЬШЕ ИНДИКАТОР
             },
           }}
         >
