@@ -3,12 +3,17 @@ import { FiEdit2, FiSend, FiTrash } from "react-icons/fi";
 import { MdOutlineClose } from "react-icons/md";
 import TimeAgo from "react-timeago";
 import { Slide, toast, ToastContainer } from "react-toastify";
-import { USER_INFO } from "./constants";
 import { useChat } from "./useChat";
-import { Input, TextField } from "@mui/material";
-import { useGetCurrentUserQuery } from "./services";
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  TextField,
+} from "@mui/material";
+import { Send } from "@mui/icons-material";
 
-// уведомление о подключении/отключении пользователя
 const notify = (message: string) =>
   toast.info(message, {
     position: "top-left",
@@ -24,13 +29,10 @@ export const ChatScreen = ({
   id: string;
   username: string;
 }) => {
-  // получаем сообщения, лог и операции
   const { messages, log, chatActions } = useChat();
 
   const [text, setText] = useState("");
-  // индикатор состояния редактирования сообщения
   const [editingState, setEditingState] = useState(false);
-  // идентификатор редактируемого сообщения
   const [editingMessageId, setEditingMessageId] = useState(0);
 
   const changeText = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,14 +51,10 @@ export const ChatScreen = ({
       text,
     };
 
-    // если компонент находится в состоянии редактирования
     if (editingState) {
-      // обновляем сообщение
       chatActions.update({ id: editingMessageId, text });
       setEditingState(false);
-      // иначе
     } else {
-      // отправляем сообщение
       chatActions.send(message);
     }
 
@@ -67,7 +65,6 @@ export const ChatScreen = ({
     chatActions.remove({ id });
   };
 
-  // эффект для отображения уведомлений при изменении лога
   useEffect(() => {
     if (!log) return;
 
@@ -75,88 +72,103 @@ export const ChatScreen = ({
   }, [log]);
 
   return (
-    <div className="overflow-scroll h-200">
-      <h1 className="title">Let's Chat</h1>
-      <div className="flex-1 flex flex-col">
+    <Card className="min-w-100 max-w-250 h-9/10 p-4 gap-4 flex flex-col">
+      <CardHeader title="Чат для документов" />
+      <CardContent
+        className="flex flex-col overflow-y-scroll h-full mb-4"
+        sx={{
+          overflowY: "auto",
+          // Стилизация скролла
+          "&::-webkit-scrollbar": {
+            width: 8,
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#f1f1f1",
+            borderRadius: 4,
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#888",
+            borderRadius: 4,
+            "&:hover": {
+              background: "#555",
+            },
+          },
+          // Для Firefox
+          scrollbarWidth: "thin",
+          scrollbarColor: "#888 #f1f1f1",
+        }}
+      >
         {messages &&
           messages.length > 0 &&
-          messages.map(message => {
-            // определяем принадлежность сообщения пользователю
+          messages.map((message, i) => {
             const isMsgBelongsToUser = message.userId === id;
-
             return (
               <div
                 key={message.id}
-                // цвет фона сообщения зависит от 2 факторов:
-                // 1) принадлежность пользователю;
-                // 2) состояние редактирования
                 className={[
-                  "my-2 p-2 rounded-md text-white w-2/3",
+                  "my-1 p-4 rounded-lg text-gray-800 w-[75%]",
                   isMsgBelongsToUser
-                    ? "self-end bg-green-500"
-                    : "self-start bg-blue-500",
-                  editingState ? "bg-gray-300" : "",
+                    ? "self-end border border-green-500 bg-green-300"
+                    : "self-start border border-blue-500 bg-blue-300",
+                  editingState ? "bg-gray-500" : "",
                 ].join(" ")}
               >
                 <div className="flex justify-between text-sm mb-1">
-                  <p>
-                    By <span>{message.userName}</span>
-                  </p>
+                  <span>
+                    {isMsgBelongsToUser ? "Вы: " : ""}
+                    {message.userName}
+                  </span>
                   <TimeAgo date={message.createdAt} />
                 </div>
                 <p>{message.text}</p>
-                {/* пользователь может редактировать и удалять только принадлежащие ему сообщения */}
-                {isMsgBelongsToUser && (
-                  <div className="flex justify-end gap-2">
-                    <button
+                {isMsgBelongsToUser && messages.length === i + 1 && (
+                  <div className="flex justify-end">
+                    <Button
                       disabled={editingState}
                       className={`${
                         editingState ? "hidden" : "text-orange-500"
                       }`}
-                      // редактирование сообщения
                       onClick={() => {
                         setEditingState(true);
                         setEditingMessageId(message.id);
                         setText(message.text);
                       }}
                     >
-                      <FiEdit2 />
-                    </button>
-                    <button
+                      <FiEdit2 size="20" color="green" />
+                    </Button>
+                    <Button
+                      variant="text"
+                      size="small"
                       disabled={editingState}
                       className={`${editingState ? "hidden" : "text-red-500"}`}
-                      // удаление сообщения
                       onClick={() => {
                         removeMessage(message.id);
                       }}
                     >
-                      <FiTrash />
-                    </button>
+                      <FiTrash size="20" color="green" />
+                    </Button>
                   </div>
                 )}
               </div>
             );
           })}
-      </div>
-      {/* отправка сообщения */}
-      <form onSubmit={sendMessage} className="flex items-stretch w-2/3">
-        <div className="flex-1 flex">
-          <TextField
-            type="text"
-            id="message"
-            name="message"
-            value={text}
-            onChange={changeText}
-            required
-            autoComplete="off"
-            className="input flex-1"
-          />
-        </div>
+      </CardContent>
+      <CardActions className="flex flex-row gap-2">
+        <TextField
+          type="text"
+          id="message"
+          name="message"
+          size="small"
+          value={text}
+          onChange={changeText}
+          required
+          autoComplete="off"
+          className="input flex-1"
+        />
         {editingState && (
           <button
             className="btn-error"
             type="button"
-            // отмена редактирования
             onClick={() => {
               setEditingState(false);
               setText("");
@@ -165,12 +177,16 @@ export const ChatScreen = ({
             <MdOutlineClose fontSize={18} />
           </button>
         )}
-        <button className="btn-primary">
-          <FiSend fontSize={18} />
-        </button>
-      </form>
-      {/* контейнер для уведомлений */}
+        <Button
+          size="medium"
+          color="primary"
+          variant="contained"
+          onClick={sendMessage}
+        >
+          <Send className="-rotate-45 scale-75" />
+        </Button>
+      </CardActions>
       <ToastContainer />
-    </div>
+    </Card>
   );
 };
