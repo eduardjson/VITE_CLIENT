@@ -108,9 +108,6 @@ export const ChatScreen = ({
 
   return (
     <Card className="min-w-100 max-w-250 h-9/10 p-4 gap-4 flex flex-col">
-      <CardHeader title="Чат для документов" />
-
-      {/* Контейнер с градиентами */}
       <Box sx={{ position: "relative", flex: 1, minHeight: 0 }}>
         {/* Верхний градиент */}
         <Box

@@ -1,4 +1,4 @@
-import { AppBar, Box, Tab, Tabs, useTheme } from "@mui/material";
+import { AppBar, Box, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ActionDropdown } from "./ActionDropdown";
@@ -24,6 +24,19 @@ const Header = () => {
     };
     setTabIndex(newValue);
     navigate({ to: tabPaths[newValue] });
+  };
+
+  const titles: Record<number, string> = {
+    0: "Работа с материалами",
+    1: "Управление складом",
+    2: "Отгрузки",
+    3: "Перемещения",
+    4: "Возвраты материалов и оборудования",
+    5: "Прайсы",
+    6: "Просмотр статистики",
+    7: "Список сотрудников",
+    8: "Чат для документов",
+    9: "Работа с подрядчиками",
   };
 
   return (
@@ -64,7 +77,7 @@ const Header = () => {
         <Profile />
       </AppBar>
 
-      <Box sx={{ width: "100%", borderBottom: 1, borderColor: "divider" }}>
+      <Box sx={{ width: "100%" }}>
         <Tabs
           value={tabIndex}
           onChange={handleSelect}
@@ -94,6 +107,9 @@ const Header = () => {
           <Tab label="Чат" />
           <Tab label="Объекты" />
         </Tabs>
+        <Typography variant="h6" className="px-5 pt-2">
+          {titles[tabIndex]}
+        </Typography>
       </Box>
     </div>
   );

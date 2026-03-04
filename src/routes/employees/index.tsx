@@ -199,10 +199,6 @@ function Employees() {
 
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <CardHeader
-        title="Сотрудники"
-        titleTypographyProps={{ variant: "h5", fontWeight: 500 }}
-      />
       <CardContent sx={{ flex: 1, p: 0, "&:last-child": { pb: 0 } }}>
         <DataGrid
           rows={rows}
