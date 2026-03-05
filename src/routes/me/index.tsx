@@ -9,7 +9,6 @@ import {
   Paper,
   IconButton,
   Grid,
-  useTheme,
   Container,
 } from "@mui/material";
 import {
@@ -42,10 +41,10 @@ const InfoItem = ({
   label: string;
   value: string;
 }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 0.5 }}>
-    <Box sx={{ color: "primary.main", minWidth: 24 }}>{icon}</Box>
+  <Box className="flex items-start gap-3 py-1">
+    <Box className="text-primary min-w-[24px]">{icon}</Box>
     <Box>
-      <Typography variant="caption" color="text.secondary">
+      <Typography variant="caption" className="text-gray-600">
         {label}
       </Typography>
       <Typography variant="body2">{value || "Не указано"}</Typography>
@@ -54,7 +53,6 @@ const InfoItem = ({
 );
 
 function MeProfile() {
-  const theme = useTheme();
   const { data } = useGetCurrentUserQuery();
   const [logout, { isLoading }] = useLogoutMutation();
   const navigate = useNavigate();
@@ -75,16 +73,7 @@ function MeProfile() {
 
   if (!data) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100vw",
-          bgcolor: "#f5f5f5",
-        }}
-      >
+      <Box className="flex justify-center items-center h-screen w-screen bg-gray-100">
         <Typography>Загрузка профиля...</Typography>
       </Box>
     );
@@ -96,51 +85,23 @@ function MeProfile() {
   const isAdmin = roles.includes("ADMIN") || roles.includes("admin");
 
   return (
-    <Box
-      sx={{
-        minHeight: "95vh",
-        width: "100%",
-        bgcolor: "#f5f5f5",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <Box className="min-h-[95vh] w-full bg-gray-100 flex flex-col">
       {/* Верхняя часть с градиентом */}
-      <Box
-        sx={{
-          height: 280,
-          position: "relative",
-        }}
-      >
-        <Container maxWidth="lg" sx={{ height: "95%", position: "relative" }}>
+      <Box className="h-[280px] relative">
+        <Container maxWidth="lg" className="h-[95%] relative">
           {/* Аватар */}
           <Avatar
             src={data.avatar}
             alt={fullName}
-            sx={{
-              width: 160,
-              height: 160,
-              border: "4px solid white",
-              position: "absolute",
-              bottom: -80,
-              left: { xs: "50%", md: 32 },
-              transform: { xs: "translateX(-50%)", md: "none" },
-              boxShadow: theme.shadows[3],
-              bgcolor: theme.palette.primary.main,
-            }}
+            className="w-40 h-40 border-4 border-white absolute -bottom-20 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 shadow-lg"
+            sx={{ bgcolor: "primary.main" }}
           >
             {!data.avatar && (data.firstName?.[0] || data.username?.[0] || "U")}
           </Avatar>
 
           {/* Кнопка редактирования */}
           <IconButton
-            sx={{
-              position: "absolute",
-              bottom: 24,
-              right: 24,
-              bgcolor: "white",
-              "&:hover": { bgcolor: "grey.100" },
-            }}
+            className="absolute bottom-6 right-6 bg-white hover:bg-gray-100"
             size="medium"
           >
             <EditIcon />
@@ -149,28 +110,19 @@ function MeProfile() {
       </Box>
 
       {/* Основной контент */}
-      <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
-        <Box sx={{ mt: 8 }}>
+      <Container maxWidth="lg" className="flex-1 py-4">
+        <Box className="mt-8">
           {/* Имя пользователя и роль */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              justifyContent: "space-between",
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 3,
-            }}
-          >
+          <Box className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3">
             <Box>
               <Typography
                 variant="h3"
                 component="h1"
-                fontWeight="600"
-                sx={{ mb: 1 }}
+                className="font-semibold mb-1"
               >
                 {fullName}
               </Typography>
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              <Box className="flex gap-1 flex-wrap">
                 <Chip
                   label={`@${data.username}`}
                   size="small"
@@ -203,7 +155,7 @@ function MeProfile() {
             </Box>
           </Box>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider className="my-4" />
 
           {/* Информация в две колонки */}
           <Grid container spacing={4}>
@@ -211,12 +163,11 @@ function MeProfile() {
               <Typography
                 variant="h6"
                 gutterBottom
-                fontWeight="500"
-                sx={{ mb: 3 }}
+                className="font-medium mb-3"
               >
                 Контактная информация
               </Typography>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+              <Paper variant="outlined" className="p-3 rounded-lg">
                 <InfoItem
                   icon={<EmailIcon />}
                   label="Email"
@@ -239,12 +190,11 @@ function MeProfile() {
               <Typography
                 variant="h6"
                 gutterBottom
-                fontWeight="500"
-                sx={{ mb: 3 }}
+                className="font-medium mb-3"
               >
                 Дополнительная информация
               </Typography>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+              <Paper variant="outlined" className="p-3 rounded-lg">
                 <InfoItem
                   icon={<PersonIcon />}
                   label="Имя"
@@ -273,17 +223,16 @@ function MeProfile() {
           {/* О себе */}
           {data.bio && (
             <>
-              <Divider sx={{ my: 4 }} />
+              <Divider className="my-4" />
               <Typography
                 variant="h6"
                 gutterBottom
-                fontWeight="500"
-                sx={{ mb: 2 }}
+                className="font-medium mb-2"
               >
                 О себе
               </Typography>
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="body1" color="text.secondary">
+              <Paper variant="outlined" className="p-3 rounded-lg">
+                <Typography variant="body1" className="text-gray-600">
                   {data.bio}
                 </Typography>
               </Paper>
@@ -291,18 +240,8 @@ function MeProfile() {
           )}
 
           {/* ID и кнопка выхода */}
-          <Box
-            sx={{
-              mt: 4,
-              pt: 3,
-              borderTop: 1,
-              borderColor: "divider",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="body2" color="text.secondary">
+          <Box className="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
+            <Typography variant="body2" className="text-gray-600">
               ID: {data.id || "Не указан"}
             </Typography>
             <Button
@@ -312,7 +251,7 @@ function MeProfile() {
               startIcon={<LogoutIcon />}
               onClick={handleOpenConfirm}
               disabled={isLoading}
-              sx={{ borderRadius: 2, px: 4 }}
+              className="rounded-lg px-4"
             >
               {isLoading ? "Выход..." : "Выйти из профиля"}
             </Button>
