@@ -63,16 +63,6 @@ const Header = () => {
           >
             СПБ-СНАБЖЕНИЕ
           </Link>
-          <ActionDropdown
-            label="Действия"
-            actions={[
-              {
-                action: () => navigate({ to: "/products/add" }),
-                label: "Добавить продукт",
-                key: "ADD_PRODUCT",
-              },
-            ]}
-          />
         </div>
         <Profile />
       </AppBar>
@@ -84,9 +74,9 @@ const Header = () => {
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            minHeight: 36, // 👈 УМЕНЬШИЛ ВЫСОТУ
+            minHeight: 30, // 👈 УМЕНЬШИЛ ВЫСОТУ
             "& .MuiTab-root": {
-              minHeight: 36, // 👈 И ЗДЕСЬ ТОЖЕ
+              minHeight: 30, // 👈 И ЗДЕСЬ ТОЖЕ
               textTransform: "none",
               fontSize: "0.85rem",
               py: 0.5,

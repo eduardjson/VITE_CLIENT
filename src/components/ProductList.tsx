@@ -3,8 +3,9 @@ import { useNavigate } from "@tanstack/react-router";
 
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
 
-import { LinearProgress, Box } from "@mui/material";
+import { LinearProgress, Box, Button, Tooltip } from "@mui/material";
 import { ProductDTO } from "../dto";
+import { Add } from "@mui/icons-material";
 
 const ProductList = () => {
   const navigate = useNavigate({ from: "/products" });
@@ -69,8 +70,20 @@ const ProductList = () => {
   ];
 
   return (
-    <Box sx={{ height: "100%", width: "100%", paddingBottom: "100px" }}>
+    <Box
+      sx={{ height: "100%", width: "100%", paddingBottom: "100px" }}
+      className="grid grid-col gap-2"
+    >
       {isLoading && <LinearProgress />}
+      <Tooltip title="Добавьте позицию в номенклатуру">
+        <Button
+          onClick={() => navigate({ to: "/products/add" })}
+          className="w-fit"
+          sx={{ px: 1 }}
+        >
+          <Add />
+        </Button>
+      </Tooltip>
       {products && (
         <DataGrid
           sx={{
