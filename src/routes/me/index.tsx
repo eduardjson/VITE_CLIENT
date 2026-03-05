@@ -1,15 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  Avatar,
   Typography,
   Button,
   Box,
-  Divider,
   Chip,
-  Paper,
   IconButton,
-  Grid,
-  Container,
+  Dialog,
 } from "@mui/material";
 import {
   Email as EmailIcon,
@@ -31,7 +27,6 @@ export const Route = createFileRoute("/me/")({
   component: MeProfile,
 });
 
-// Компонент для отображения информации с иконкой
 const InfoItem = ({
   icon,
   label,
@@ -41,13 +36,15 @@ const InfoItem = ({
   label: string;
   value: string;
 }) => (
-  <Box className="flex items-start gap-3 py-1">
-    <Box className="text-primary min-w-[24px]">{icon}</Box>
+  <Box className="flex items-start gap-2">
+    <Box className="text-gray-400 min-w-6">{icon}</Box>
     <Box>
-      <Typography variant="caption" className="text-gray-600">
+      <Typography variant="body2" className="text-gray-500">
         {label}
       </Typography>
-      <Typography variant="body2">{value || "Не указано"}</Typography>
+      <Typography variant="body1" className="font-medium">
+        {value || "—"}
+      </Typography>
     </Box>
   </Box>
 );
@@ -73,7 +70,7 @@ function MeProfile() {
 
   if (!data) {
     return (
-      <Box className="flex justify-center items-center h-screen w-screen bg-gray-100">
+      <Box className="flex justify-center items-center h-screen w-screen">
         <Typography>Загрузка профиля...</Typography>
       </Box>
     );
@@ -85,190 +82,119 @@ function MeProfile() {
   const isAdmin = roles.includes("ADMIN") || roles.includes("admin");
 
   return (
-    <Box className="min-h-[95vh] w-full bg-gray-100 flex flex-col">
-      {/* Верхняя часть с градиентом */}
-      <Box className="h-[280px] relative">
-        <Container maxWidth="lg" className="h-[95%] relative">
-          {/* Аватар */}
-          <Avatar
-            src={data.avatar}
-            alt={fullName}
-            className="w-40 h-40 border-4 border-white absolute -bottom-20 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 shadow-lg"
-            sx={{ bgcolor: "primary.main" }}
-          >
-            {!data.avatar && (data.firstName?.[0] || data.username?.[0] || "U")}
-          </Avatar>
-
-          {/* Кнопка редактирования */}
-          <IconButton
-            className="absolute bottom-6 right-6 bg-white hover:bg-gray-100"
-            size="medium"
-          >
-            <EditIcon />
-          </IconButton>
-        </Container>
-      </Box>
-
-      {/* Основной контент */}
-      <Container maxWidth="lg" className="flex-1 py-4">
-        <Box className="mt-8">
-          {/* Имя пользователя и роль */}
-          <Box className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3">
-            <Box>
-              <Typography
-                variant="h3"
-                component="h1"
-                className="font-semibold mb-1"
-              >
-                {fullName}
-              </Typography>
-              <Box className="flex gap-1 flex-wrap">
+    <Dialog open fullScreen>
+      <Box className=" bg-white flex flex-col gap-10 p-4 min-w-150 mx-auto my-auto">
+        <Box
+          className={`flex flex-row justify-start w-full h-50 items-start gap-4`}
+        >
+          <div className="w-50 h-50 overflow-hidden rounded-sm">
+            <img
+              src={data.avatar}
+              alt={fullName}
+              width="220"
+              height="220"
+              className="scale-120"
+            />
+          </div>
+          <Box className="flex flex-col items-start gap-2 flex-wrap">
+            <Typography variant="h4">{fullName}</Typography>
+            <Box className="flex gap-2 flex-wrap mt-2 items-center">
+              <Chip
+                label={`@${data.username}`}
+                size="small"
+                variant="outlined"
+                className="border-gray-200"
+              />
+              {isAdmin && (
                 <Chip
-                  label={`@${data.username}`}
+                  label="Администратор"
                   size="small"
-                  icon={<PersonIcon />}
-                  variant="outlined"
+                  icon={<AdminIcon />}
+                  className="bg-amber-50 text-amber-700 border-amber-200"
                 />
-                {isAdmin && (
-                  <Chip
-                    label="Администратор"
-                    size="small"
-                    color="warning"
-                    icon={<AdminIcon />}
-                  />
-                )}
-                {roles.map(
-                  (role, index) =>
-                    role !== "ADMIN" &&
-                    role !== "admin" && (
-                      <Chip
-                        key={index}
-                        label={role}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    ),
-                )}
-                <Chip label="Активен" size="small" color="success" />
-              </Box>
+              )}
+              {roles.map(
+                (role, index) =>
+                  role === "USER" && (
+                    <Chip
+                      key={index}
+                      label={"Пользователь"}
+                      size="small"
+                      variant="outlined"
+                      className="border-green-600"
+                    />
+                  ),
+              )}
+              <IconButton size="small" className="text-gray-800">
+                <EditIcon fontSize="small" />
+              </IconButton>
             </Box>
           </Box>
-
-          <Divider className="my-4" />
-
-          {/* Информация в две колонки */}
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                className="font-medium mb-3"
-              >
-                Контактная информация
-              </Typography>
-              <Paper variant="outlined" className="p-3 rounded-lg">
-                <InfoItem
-                  icon={<EmailIcon />}
-                  label="Email"
-                  value={data.email}
-                />
-                <InfoItem
-                  icon={<PhoneIcon />}
-                  label="Телефон"
-                  value={data.phone}
-                />
-                <InfoItem
-                  icon={<BadgeIcon />}
-                  label="Username"
-                  value={data.username}
-                />
-              </Paper>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                className="font-medium mb-3"
-              >
-                Дополнительная информация
-              </Typography>
-              <Paper variant="outlined" className="p-3 rounded-lg">
-                <InfoItem
-                  icon={<PersonIcon />}
-                  label="Имя"
-                  value={data.firstName || "Не указано"}
-                />
-                <InfoItem
-                  icon={<PersonIcon />}
-                  label="Фамилия"
-                  value={data.lastName || "Не указано"}
-                />
-                <InfoItem
-                  icon={<CalendarIcon />}
-                  label="Зарегистрирован"
-                  value={
-                    data.createdAt
-                      ? format(new Date(data.createdAt), "d MMMM yyyy", {
-                          locale: ru,
-                        })
-                      : "Не указано"
-                  }
-                />
-              </Paper>
-            </Grid>
-          </Grid>
-
-          {/* О себе */}
-          {data.bio && (
-            <>
-              <Divider className="my-4" />
-              <Typography
-                variant="h6"
-                gutterBottom
-                className="font-medium mb-2"
-              >
-                О себе
-              </Typography>
-              <Paper variant="outlined" className="p-3 rounded-lg">
-                <Typography variant="body1" className="text-gray-600">
-                  {data.bio}
-                </Typography>
-              </Paper>
-            </>
-          )}
-
-          {/* ID и кнопка выхода */}
-          <Box className="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
-            <Typography variant="body2" className="text-gray-600">
-              ID: {data.id || "Не указан"}
-            </Typography>
-            <Button
-              variant="contained"
-              color="error"
-              size="large"
-              startIcon={<LogoutIcon />}
-              onClick={handleOpenConfirm}
-              disabled={isLoading}
-              className="rounded-lg px-4"
-            >
-              {isLoading ? "Выход..." : "Выйти из профиля"}
-            </Button>
-          </Box>
         </Box>
-      </Container>
-
-      {/* Модальное окно подтверждения выхода */}
-      <ActionModal
-        title="Выход из системы"
-        actionName="Выйти"
-        cancelName="Отмена"
-        content="Вы действительно хотите выйти из системы? Все несохраненные данные могут быть утеряны."
-        open={confirmOpen}
-        onClose={handleCloseConfirm}
-        onSubmitAction={handleLogout}
-      />
-    </Box>
+        <Box className="flex flex-col gap-2">
+          <InfoItem
+            icon={<EmailIcon fontSize="small" />}
+            label="Email"
+            value={data.email}
+          />
+          <InfoItem
+            icon={<PhoneIcon fontSize="small" />}
+            label="Телефон"
+            value={data.phone}
+          />
+          <InfoItem
+            icon={<BadgeIcon fontSize="small" />}
+            label="Username"
+            value={data.username}
+          />
+          <InfoItem
+            icon={<PersonIcon fontSize="small" />}
+            label="Имя"
+            value={data.firstName}
+          />
+          <InfoItem
+            icon={<PersonIcon fontSize="small" />}
+            label="Фамилия"
+            value={data.lastName}
+          />
+          <InfoItem
+            icon={<CalendarIcon fontSize="small" />}
+            label="Зарегистрирован"
+            value={
+              data.createdAt
+                ? format(new Date(data.createdAt), "d MMMM yyyy", {
+                    locale: ru,
+                  })
+                : ""
+            }
+          />
+        </Box>
+        <Box className="flex justify-between items-center">
+          <Typography variant="body2" className="text-gray-400 font-mono">
+            ID: {data.id || "—"}
+          </Typography>
+          <Button
+            variant="text"
+            color="error"
+            size="medium"
+            startIcon={<LogoutIcon />}
+            onClick={handleOpenConfirm}
+            disabled={isLoading}
+            className="hover:bg-red-50 px-4 py-2"
+          >
+            {isLoading ? "Выход..." : "Выйти"}
+          </Button>
+        </Box>
+        <ActionModal
+          title="Выход из системы"
+          actionName="Выйти"
+          cancelName="Отмена"
+          content="Вы действительно хотите выйти?"
+          open={confirmOpen}
+          onClose={handleCloseConfirm}
+          onSubmitAction={handleLogout}
+        />
+      </Box>
+    </Dialog>
   );
 }
