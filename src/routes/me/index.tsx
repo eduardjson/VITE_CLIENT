@@ -82,8 +82,8 @@ function MeProfile() {
   const isAdmin = roles.includes("ADMIN") || roles.includes("admin");
 
   return (
-    <Dialog open fullScreen>
-      <Box className=" bg-white flex flex-col gap-10 p-4 min-w-150 mx-auto my-auto">
+    <Dialog open>
+      <Box className=" bg-white flex flex-col gap-10 min-w-150 p-10">
         <Box
           className={`flex flex-row justify-start w-full h-50 items-start gap-4`}
         >
