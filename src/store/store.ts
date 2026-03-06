@@ -4,10 +4,17 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { productsApi } from "../services/productsApi";
 import { authApi, userApi } from "../services";
 import { filterSlice } from "../services/slices/filterSlice";
+import { filesApi } from "../services/api";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer = combineSlices(productsApi, authApi, userApi, filterSlice);
+const rootReducer = combineSlices(
+  productsApi,
+  authApi,
+  userApi,
+  filterSlice,
+  filesApi,
+);
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>;
 
@@ -23,6 +30,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
         productsApi.middleware,
         authApi.middleware,
         userApi.middleware,
+        filesApi.middleware,
       );
     },
     preloadedState,

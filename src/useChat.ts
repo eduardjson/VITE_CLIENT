@@ -91,6 +91,38 @@ export const useChat = () => {
     socket.emit("message:delete", payload);
   }, []);
 
+  const downloadFile = useCallback(
+    async (attachmentId: string, fileName: string) => {
+      const token = localStorage.getItem("accessToken");
+
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/attachments/${attachmentId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+            responseType: "blob",
+          },
+        );
+
+        // Создаем ссылку для скачивания
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Ошибка загрузки файла:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
   window.clearMessages = useCallback(() => {
     socket.emit("messages:clear");
     location.reload();
@@ -102,6 +134,7 @@ export const useChat = () => {
       update,
       remove,
       uploadFiles,
+      downloadFile,
     }),
     [send, update, remove, uploadFiles],
   );

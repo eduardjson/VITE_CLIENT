@@ -15,9 +15,11 @@ import {
   Tooltip,
   Chip,
   LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 import { Send, AttachFile, InsertDriveFile } from "@mui/icons-material";
 import { Message } from "./types";
+import { useDownloadFileQuery, useLazyDownloadFileQuery } from "./services/api";
 
 const notify = (message: string) =>
   toast.info(message, {
@@ -28,6 +30,11 @@ const notify = (message: string) =>
   });
 
 const FileAttachment = ({ attachment }: { attachment: any }) => {
+  const { chatActions } = useChat();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const [downloadTrigger, { isLoading }] = useLazyDownloadFileQuery();
+
   const getFileIcon = (fileType: string) => {
     if (fileType.includes("pdf")) return "📄";
     if (fileType.includes("word") || fileType.includes("document")) return "📝";
@@ -41,29 +48,75 @@ const FileAttachment = ({ attachment }: { attachment: any }) => {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await chatActions.downloadFile(attachment.id, attachment.fileName);
+      toast.success("Файл загружен");
+    } catch (error) {
+      toast.error("Ошибка загрузки файла");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <Tooltip
       title={`${attachment.fileName} (${formatFileSize(attachment.fileSize)})`}
     >
       <Chip
-        icon={<InsertDriveFile />}
+        icon={isLoading ? <CircularProgress size={20} /> : <InsertDriveFile />}
         label={
           attachment.fileName.length > 20
             ? attachment.fileName.substring(0, 20) + "..."
             : attachment.fileName
         }
-        onClick={() =>
-          window.open(
-            `http://localhost:5000/api/attachments/${attachment.id}`,
-            "_blank",
-          )
-        }
+        onClick={handleDownload}
+        disabled={isLoading}
         size="small"
         sx={{ mr: 1, mb: 1, cursor: "pointer" }}
       />
     </Tooltip>
   );
 };
+
+// const FileAttachment = ({ attachment }: { attachment: any }) => {
+//   const getFileIcon = (fileType: string) => {
+//     if (fileType.includes("pdf")) return "📄";
+//     if (fileType.includes("word") || fileType.includes("document")) return "📝";
+//     if (fileType.includes("excel") || fileType.includes("sheet")) return "📊";
+//     return "📎";
+//   };
+
+//   const formatFileSize = (bytes: number) => {
+//     if (bytes < 1024) return bytes + " B";
+//     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+//     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+//   };
+
+//   return (
+//     <Tooltip
+//       title={`${attachment.fileName} (${formatFileSize(attachment.fileSize)})`}
+//     >
+//       <Chip
+//         icon={<InsertDriveFile />}
+//         label={
+//           attachment.fileName.length > 20
+//             ? attachment.fileName.substring(0, 20) + "..."
+//             : attachment.fileName
+//         }
+//         onClick={() =>
+//           window.open(
+//             `http://localhost:5000/api/attachments/${attachment.id}`,
+//             "_blank",
+//           )
+//         }
+//         size="small"
+//         sx={{ mr: 1, mb: 1, cursor: "pointer" }}
+//       />
+//     </Tooltip>
+//   );
+// };
 
 export const ChatScreen = ({
   id,
