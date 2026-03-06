@@ -1,15 +1,25 @@
-import { useGetAllProductsQuery } from "../services";
+import { useGetAllProductsQuery } from "../services/productsApi";
 import { useNavigate } from "@tanstack/react-router";
-
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
-
-import { LinearProgress, Box, Button, Tooltip } from "@mui/material";
+import {
+  LinearProgress,
+  Box,
+  Button,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { ProductDTO } from "../dto";
 import { Add } from "@mui/icons-material";
+import ProductFilter from "./ProductFilter";
+import { useAppSelector } from "../store/hooks";
+import { selectFilteredProducts } from "../services/selectors/productSelectors";
 
 const ProductList = () => {
   const navigate = useNavigate({ from: "/products" });
-  const { data: products = [], isLoading } = useGetAllProductsQuery();
+  const { isLoading } = useGetAllProductsQuery();
+
+  // Используем мемоизированный селектор для получения отфильтрованных продуктов
+  const filteredProducts = useAppSelector(selectFilteredProducts);
 
   const handleOpen: GridEventListener<"rowClick"> = ({ id }) => {
     navigate({ to: `/products/${id}` });
@@ -43,16 +53,17 @@ const ProductList = () => {
       minWidth: 100,
       flex: 1,
       renderCell: ({ row }) => (
-        <div className="flex flex-row align-middle p-2">
+        <Box sx={{ display: "flex", alignItems: "center", p: 1 }}>
           {row?.imageUrl && (
             <img
               src={row.imageUrl}
               width={36}
               height={36}
-              className="rounded-sm"
+              style={{ borderRadius: "4px" }}
+              alt={row.title}
             />
           )}
-        </div>
+        </Box>
       ),
     },
     {
@@ -60,6 +71,9 @@ const ProductList = () => {
       headerName: "Стоимость",
       editable: false,
       minWidth: 140,
+      valueFormatter: params => {
+        return `${params.value} ₽`;
+      },
     },
     {
       field: "quantity",
@@ -70,23 +84,35 @@ const ProductList = () => {
   ];
 
   return (
-    <Box
-      sx={{ height: "100%", width: "100%", paddingBottom: "100px" }}
-      className="grid grid-col gap-2"
-    >
+    <Box sx={{ height: "100%", width: "100%", p: 2 }}>
       {isLoading && <LinearProgress />}
-      <Tooltip title="Добавьте позицию в номенклатуру">
-        <Button
-          onClick={() => navigate({ to: "/products/add" })}
-          className="w-fit"
-          sx={{ px: 1 }}
-        >
-          <Add />
-        </Button>
-      </Tooltip>
-      {products && (
+
+      <ProductFilter />
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5">Список товаров</Typography>
+        <Tooltip title="Добавьте позицию в номенклатуру">
+          <Button
+            onClick={() => navigate({ to: "/products/add" })}
+            variant="contained"
+            startIcon={<Add />}
+          >
+            Добавить товар
+          </Button>
+        </Tooltip>
+      </Box>
+
+      {filteredProducts && (
         <DataGrid
           sx={{
+            height: "calc(100vh - 250px)",
             ".MuiDataGrid-cell:focus": {
               outline: "none",
             },
@@ -94,13 +120,16 @@ const ProductList = () => {
               cursor: "pointer",
             },
           }}
-          rows={products}
+          rows={filteredProducts}
           columns={columns}
           onRowClick={handleOpen}
           disableRowSelectionOnClick
-          disableColumnSorting
-          disableColumnFilter
-          disableVirtualization
+          pageSizeOptions={[10, 25, 50]}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 10, page: 0 },
+            },
+          }}
         />
       )}
     </Box>
