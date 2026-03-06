@@ -8,14 +8,16 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent,
-  CardHeader,
   TextField,
   Box,
   alpha,
   useTheme,
+  Tooltip,
+  Chip,
+  LinearProgress,
 } from "@mui/material";
-import { Send } from "@mui/icons-material";
+import { Send, AttachFile, InsertDriveFile } from "@mui/icons-material";
+import { Message } from "./types";
 
 const notify = (message: string) =>
   toast.info(message, {
@@ -24,6 +26,44 @@ const notify = (message: string) =>
     hideProgressBar: true,
     transition: Slide,
   });
+
+const FileAttachment = ({ attachment }: { attachment: any }) => {
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes("pdf")) return "📄";
+    if (fileType.includes("word") || fileType.includes("document")) return "📝";
+    if (fileType.includes("excel") || fileType.includes("sheet")) return "📊";
+    return "📎";
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  return (
+    <Tooltip
+      title={`${attachment.fileName} (${formatFileSize(attachment.fileSize)})`}
+    >
+      <Chip
+        icon={<InsertDriveFile />}
+        label={
+          attachment.fileName.length > 20
+            ? attachment.fileName.substring(0, 20) + "..."
+            : attachment.fileName
+        }
+        onClick={() =>
+          window.open(
+            `http://localhost:5000/api/attachments/${attachment.id}`,
+            "_blank",
+          )
+        }
+        size="small"
+        sx={{ mr: 1, mb: 1, cursor: "pointer" }}
+      />
+    </Tooltip>
+  );
+};
 
 export const ChatScreen = ({
   id,
@@ -35,12 +75,14 @@ export const ChatScreen = ({
   const theme = useTheme();
   const { messages, log, chatActions } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [text, setText] = useState("");
   const [editingState, setEditingState] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState(0);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Состояния для отображения градиентов
   const [showTopGradient, setShowTopGradient] = useState(false);
   const [showBottomGradient, setShowBottomGradient] = useState(false);
 
@@ -48,51 +90,65 @@ export const ChatScreen = ({
     setText(e.target.value);
   };
 
-  const sendMessage = (e: React.FormEvent) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setAttachedFiles(prev => [...prev, ...files]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && attachedFiles.length === 0) return;
 
-    const message = {
-      userId: id,
-      userName: username,
-      text,
-    };
+    setIsUploading(true);
 
-    if (editingState) {
-      chatActions.update({ id: editingMessageId, text });
-      setEditingState(false);
-    } else {
-      chatActions.send(message);
+    try {
+      const message = {
+        userId: id,
+        userName: username,
+        text: trimmed || "(Файл)",
+      };
+
+      if (editingState) {
+        await chatActions.update({ id: editingMessageId, text });
+        setEditingState(false);
+      } else {
+        await chatActions.send(message, attachedFiles);
+      }
+
+      setText("");
+      setAttachedFiles([]);
+    } catch (error) {
+      console.error("Ошибка отправки:", error);
+      toast.error("Ошибка при отправке сообщения");
+    } finally {
+      setIsUploading(false);
     }
-
-    setText("");
   };
 
   const removeMessage = (id: number) => {
     chatActions.remove({ id });
   };
 
-  // Функция для проверки прокрутки
   const checkScroll = () => {
     if (scrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-
-      // Показываем верхний градиент, если прокрутили вниз хотя бы на 10px
       setShowTopGradient(scrollTop > 10);
-
-      // Показываем нижний градиент, если не дошли до конца (с запасом 10px)
       setShowBottomGradient(scrollTop + clientHeight < scrollHeight - 10);
     }
   };
 
-  // Следим за прокруткой и изменениями в сообщениях
   useEffect(() => {
     checkScroll();
   }, [messages]);
 
-  // Добавляем обработчик прокрутки
   useEffect(() => {
     const scrollElement = scrollRef.current;
     if (scrollElement) {
@@ -109,7 +165,7 @@ export const ChatScreen = ({
   return (
     <Card className="min-w-100 max-w-250 h-9/10 p-4 gap-4 flex flex-col">
       <Box sx={{ position: "relative", flex: 1, minHeight: 0 }}>
-        {/* Верхний градиент */}
+        {/* Градиенты (как в вашем коде) */}
         <Box
           sx={{
             position: "absolute",
@@ -124,8 +180,6 @@ export const ChatScreen = ({
             zIndex: 1,
           }}
         />
-
-        {/* Нижний градиент */}
         <Box
           sx={{
             position: "absolute",
@@ -141,24 +195,22 @@ export const ChatScreen = ({
           }}
         />
 
-        {/* Область сообщений (скролл) */}
         <Box
           ref={scrollRef}
           className="flex flex-col h-full overflow-y-scroll"
           sx={{
             overflowY: "auto",
             pr: 1,
-            // Скрываем скролл, но оставляем функциональность
             "&::-webkit-scrollbar": {
-              display: "none", // Для Chrome, Safari, Opera
+              display: "none",
             },
-            scrollbarWidth: "none", // Для Firefox
-            msOverflowStyle: "none", // Для IE и Edge
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
           }}
         >
           <Box sx={{ pt: 2, pb: 2 }}>
             {messages && messages.length > 0 ? (
-              messages.map((message, i) => {
+              messages.map((message: Message) => {
                 const isMsgBelongsToUser = message.userId === id;
                 return (
                   <div
@@ -184,7 +236,20 @@ export const ChatScreen = ({
                       </span>
                       <TimeAgo date={message.createdAt} />
                     </div>
-                    <p>{message.text}</p>
+
+                    {message.text && message.text !== "(Файл)" && (
+                      <p>{message.text}</p>
+                    )}
+
+                    {/* Отображение вложений */}
+                    {message.attachments && message.attachments.length > 0 && (
+                      <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap" }}>
+                        {message.attachments.map(att => (
+                          <FileAttachment key={att.id} attachment={att} />
+                        ))}
+                      </Box>
+                    )}
+
                     {isMsgBelongsToUser && (
                       <div className="flex justify-end mt-2">
                         <Button
@@ -205,9 +270,7 @@ export const ChatScreen = ({
                         <Button
                           size="small"
                           disabled={editingState}
-                          onClick={() => {
-                            removeMessage(message.id);
-                          }}
+                          onClick={() => removeMessage(message.id)}
                           sx={{ minWidth: "auto", p: 0.5 }}
                         >
                           <FiTrash
@@ -229,50 +292,93 @@ export const ChatScreen = ({
         </Box>
       </Box>
 
-      {/* Форма отправки сообщения */}
-      <CardActions className="flex flex-row" sx={{ pt: 2 }}>
-        <TextField
-          type="text"
-          id="message"
-          name="message"
-          size="small"
-          value={text}
-          onChange={changeText}
-          required
-          autoComplete="off"
-          className="input flex-1"
-          placeholder="Введите сообщение..."
-          onKeyPress={e => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage(e);
-            }
-          }}
-        />
-        {editingState && (
-          <Button
-            variant="text"
-            color="error"
-            type="button"
-            onClick={() => {
-              setEditingState(false);
-              setText("");
+      {/* Отображение прикрепленных файлов */}
+      {attachedFiles.length > 0 && (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, p: 1 }}>
+          {attachedFiles.map((file, index) => (
+            <Chip
+              key={index}
+              label={
+                file.name.length > 20
+                  ? file.name.substring(0, 20) + "..."
+                  : file.name
+              }
+              onDelete={() => removeFile(index)}
+              size="small"
+              icon={<InsertDriveFile />}
+            />
+          ))}
+        </Box>
+      )}
+
+      {isUploading && <LinearProgress />}
+
+      {/* Форма отправки */}
+      <CardActions className="flex flex-col" sx={{ pt: 2 }}>
+        <Box sx={{ display: "flex", width: "100%", gap: 1 }}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            multiple
+            accept=".pdf,.doc,.docx,.xls,.xlsx"
+            style={{ display: "none" }}
+          />
+
+          <Tooltip title="Прикрепить файл (PDF, Word, Excel)">
+            <Button
+              variant="outlined"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              sx={{ minWidth: "auto", p: 1 }}
+            >
+              <AttachFile />
+            </Button>
+          </Tooltip>
+
+          <TextField
+            type="text"
+            size="small"
+            value={text}
+            onChange={changeText}
+            disabled={isUploading}
+            autoComplete="off"
+            className="flex-1"
+            placeholder="Введите сообщение..."
+            onKeyPress={e => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(e);
+              }
             }}
+          />
+
+          {editingState && (
+            <Button
+              variant="text"
+              color="error"
+              onClick={() => {
+                setEditingState(false);
+                setText("");
+              }}
+              sx={{ minWidth: "auto", p: 1 }}
+            >
+              <MdOutlineClose fontSize={20} />
+            </Button>
+          )}
+
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={sendMessage}
+            disabled={
+              (!text.trim() && attachedFiles.length === 0) || isUploading
+            }
             sx={{ minWidth: "auto", p: 1 }}
           >
-            <MdOutlineClose fontSize={20} />
+            <Send className="-rotate-45 scale-75" />
           </Button>
-        )}
-        <Button
-          size="medium"
-          color="primary"
-          variant="contained"
-          onClick={sendMessage}
-          disabled={!text.trim()}
-          sx={{ minWidth: "auto", p: 1 }}
-        >
-          <Send className="-rotate-45 scale-75" />
-        </Button>
+        </Box>
       </CardActions>
 
       <ToastContainer />
