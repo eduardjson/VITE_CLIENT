@@ -97,7 +97,7 @@ export const useChat = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // Добавил Bearer
+            Authorization: `${token}`, // Добавил Bearer
           },
         },
       );
@@ -150,7 +150,7 @@ export const useChat = () => {
           `http://localhost:5000/api/attachments/${attachmentId}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Добавил Bearer
+              Authorization: `${token}`, // Добавил Bearer
             },
             responseType: "blob",
           },
