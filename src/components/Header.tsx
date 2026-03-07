@@ -1,6 +1,7 @@
 import { AppBar, Box, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { ActionDropdown } from "./ActionDropdown";
 import { Profile } from "./Profile";
 
 const Header = () => {
@@ -20,7 +21,6 @@ const Header = () => {
       7: "/employees",
       8: "/free-chat",
       9: "/contractors",
-      10: "/price-history",
     };
     setTabIndex(newValue);
     navigate({ to: tabPaths[newValue] });
@@ -93,11 +93,11 @@ const Header = () => {
           <Tab label="Перемещения" />
           <Tab label="Возвраты" />
           <Tab label="Прайсы" />
+          {/* <Tab label="Формирование цен" /> */}
           <Tab label="Аналитика" />
           <Tab label="Сотрудники" />
           <Tab label="Чат" />
           <Tab label="Объекты" />
-          <Tab label="Формирование цен" />
         </Tabs>
         <Typography variant="h6" className="px-5 pt-2">
           {titles[tabIndex]}

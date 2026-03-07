@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -32,7 +32,8 @@ import {
   useGetPriceListsQuery,
   useGetCategoriesQuery,
 } from "../../services/priceApi";
-import { useGetProductsQuery } from "../../services/productApi"; // ваш API продуктов
+import { clearCurrentProductId } from "../../store/currentProductSlice";
+import { useAppDispatch, useAppSelector } from "../../store";
 
 interface ProductPricesProps {
   productId: string;
@@ -45,6 +46,19 @@ export const ProductPrices = ({ productId }: ProductPricesProps) => {
   const [createPrice] = useCreatePriceMutation();
   const [updatePrice] = useUpdatePriceMutation();
   const [deletePrice] = useDeletePriceMutation();
+
+  const dispatch = useAppDispatch();
+  const currentProductId = useAppSelector(state => state.currentProduct.id);
+
+  useEffect(() => {
+    // if (currentProductId) {
+    //   dispatch(fetchPricesByProduct(currentProductId));
+    // }
+
+    return () => {
+      dispatch(clearCurrentProductId());
+    };
+  }, [currentProductId, dispatch]);
 
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState<any>(null);

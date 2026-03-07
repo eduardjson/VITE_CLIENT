@@ -7,6 +7,7 @@ import { filterSlice } from "../services/slices/filterSlice";
 import { filesApi } from "../services/api";
 import { api2 } from "../services/api2";
 import { priceApi } from "../services/priceApi";
+import { currentProductSlice } from "./currentProductSlice";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
@@ -18,6 +19,7 @@ const rootReducer = combineSlices(
   filesApi,
   api2,
   priceApi,
+  currentProductSlice,
 );
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>;

@@ -5,11 +5,21 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import ProductForm from "./ProductForm/ProductForm";
 import { ActionModal } from "./ActionModal";
+import { setCurrentProductId } from "../store/currentProductSlice";
+import { useAppDispatch } from "../store";
 
 const ProductCard = ({ id }: { id: string }) => {
   const [editDialog, setEditDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
+
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const handleManagePrices = () => {
+    dispatch(setCurrentProductId(product.id));
+    navigate({ to: "/prices" });
+  };
+
   const { data: product } = useGetProductByIdQuery(id);
 
   const [deleteProduct, { isLoading }] = useDeleteProductMutation();
@@ -78,6 +88,7 @@ const ProductCard = ({ id }: { id: string }) => {
           >
             Удалить
           </Button>
+          <button onClick={handleManagePrices}>Управление ценами</button>
         </div>
       </div>
       <ActionModal
