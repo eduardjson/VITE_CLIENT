@@ -15,6 +15,7 @@ import { Route as ShipmentsIndexRouteImport } from './routes/shipments/index'
 import { Route as ReturnsIndexRouteImport } from './routes/returns/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PricesIndexRouteImport } from './routes/prices/index'
+import { Route as PriceHistoryIndexRouteImport } from './routes/price-history/index'
 import { Route as MovementsIndexRouteImport } from './routes/movements/index'
 import { Route as MeIndexRouteImport } from './routes/me/index'
 import { Route as FreeChatIndexRouteImport } from './routes/free-chat/index'
@@ -55,6 +56,11 @@ const ProductsIndexRoute = ProductsIndexRouteImport.update({
 const PricesIndexRoute = PricesIndexRouteImport.update({
   id: '/prices/',
   path: '/prices/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PriceHistoryIndexRoute = PriceHistoryIndexRouteImport.update({
+  id: '/price-history/',
+  path: '/price-history/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MovementsIndexRoute = MovementsIndexRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/free-chat': typeof FreeChatIndexRoute
   '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
+  '/price-history': typeof PriceHistoryIndexRoute
   '/prices': typeof PricesIndexRoute
   '/products': typeof ProductsIndexRoute
   '/returns': typeof ReturnsIndexRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/free-chat': typeof FreeChatIndexRoute
   '/me': typeof MeIndexRoute
   '/movements': typeof MovementsIndexRoute
+  '/price-history': typeof PriceHistoryIndexRoute
   '/prices': typeof PricesIndexRoute
   '/products': typeof ProductsIndexRoute
   '/returns': typeof ReturnsIndexRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/free-chat/': typeof FreeChatIndexRoute
   '/me/': typeof MeIndexRoute
   '/movements/': typeof MovementsIndexRoute
+  '/price-history/': typeof PriceHistoryIndexRoute
   '/prices/': typeof PricesIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/returns/': typeof ReturnsIndexRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/free-chat'
     | '/me'
     | '/movements'
+    | '/price-history'
     | '/prices'
     | '/products'
     | '/returns'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/free-chat'
     | '/me'
     | '/movements'
+    | '/price-history'
     | '/prices'
     | '/products'
     | '/returns'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/free-chat/'
     | '/me/'
     | '/movements/'
+    | '/price-history/'
     | '/prices/'
     | '/products/'
     | '/returns/'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   FreeChatIndexRoute: typeof FreeChatIndexRoute
   MeIndexRoute: typeof MeIndexRoute
   MovementsIndexRoute: typeof MovementsIndexRoute
+  PriceHistoryIndexRoute: typeof PriceHistoryIndexRoute
   PricesIndexRoute: typeof PricesIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   ReturnsIndexRoute: typeof ReturnsIndexRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/prices'
       fullPath: '/prices'
       preLoaderRoute: typeof PricesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/price-history/': {
+      id: '/price-history/'
+      path: '/price-history'
+      fullPath: '/price-history'
+      preLoaderRoute: typeof PriceHistoryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movements/': {
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   FreeChatIndexRoute: FreeChatIndexRoute,
   MeIndexRoute: MeIndexRoute,
   MovementsIndexRoute: MovementsIndexRoute,
+  PriceHistoryIndexRoute: PriceHistoryIndexRoute,
   PricesIndexRoute: PricesIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   ReturnsIndexRoute: ReturnsIndexRoute,
