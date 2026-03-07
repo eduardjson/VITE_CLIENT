@@ -5,6 +5,7 @@ import { productsApi } from "../services/productsApi";
 import { authApi, userApi } from "../services";
 import { filterSlice } from "../services/slices/filterSlice";
 import { filesApi } from "../services/api";
+import { api2 } from "../services/api2";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
@@ -14,6 +15,7 @@ const rootReducer = combineSlices(
   userApi,
   filterSlice,
   filesApi,
+  api2,
 );
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>;
@@ -31,6 +33,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
         authApi.middleware,
         userApi.middleware,
         filesApi.middleware,
+        api2.middleware,
       );
     },
     preloadedState,

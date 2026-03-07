@@ -21,6 +21,7 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { UserDetails } from "../../components/UserDetails";
 
 export const Route = createFileRoute("/employees/$employeeId")({
   component: EmployeeDetail,
@@ -71,12 +72,7 @@ function EmployeeDetail() {
 
   return (
     <Box sx={{ p: 3, maxWidth: 900 }}>
-      <Typography
-        variant="h5"
-        sx={{ fontWeight: 400, color: "text.primary", mb: 3 }}
-      >
-        Профиль сотрудника
-      </Typography>
+      {user && <UserDetails user={user} />}
     </Box>
   );
 }
